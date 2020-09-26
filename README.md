@@ -1,4 +1,4 @@
-# SageMontrealBackend
+# MCSS Backend
 
 Install dependencies using npm:
 ### `yarn install`
