@@ -40,7 +40,7 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
       intent = event.data.object;
       console.log(intent.charges.data[0])
       console.log(intent.charges.data[0].billing_details.name)
-      console.log(intent.charges.receipt_email)
+      console.log(intent.charges.data[0].billing_details.email)
       base('Customers').create([
         {
           "fields": {
