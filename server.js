@@ -38,8 +38,9 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
   switch (event['type']) {
     case 'payment_intent.succeeded':
       intent = event.data.object;
-      console.log("Succeeded:", intent);
       console.log(intent.charges.data[0])
+      console.log(intent.charges.data[0].name)
+      console.log(intent.charges.data[0].email)
       base('Customers').create([
         {
           "fields": {
