@@ -45,7 +45,7 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
         {
           "fields": {
             "Name": intent.charges.data[0].billing_details.name,
-            "Email": intent.charges.receipt_email
+            "Email": intent.charges.data[0].billing_details.email
           }
         },
       ], function(err, records) {
