@@ -39,13 +39,13 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
     case 'payment_intent.succeeded':
       intent = event.data.object;
       console.log(intent.charges.data[0])
-      console.log(intent.charges.data[0].name)
-      console.log(intent.charges.data[0].email)
+      console.log(intent.charges.data[0].billing_details.name)
+      console.log(intent.charges.receipt_email)
       base('Customers').create([
         {
           "fields": {
-            "Name": intent.charges.data[0].name,
-            "Email": intent.charges.data[0].email
+            "Name": intent.charges.data[0].billing_details.name,
+            "Email": intent.charges.receipt_email
           }
         },
       ], function(err, records) {
