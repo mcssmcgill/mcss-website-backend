@@ -76,7 +76,7 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
             const col = client.db(process.env.MONGODB_DBNAME).collection("merch-inventory");
             const queryResult = col.findOneAndUpdate({ "name": name, "size": size }, { $inc : { "availability": -quantity } })
             client.close();
-            res.status(200).json(queryResult);
+            response.status(200).json(queryResult);
           });
         });
   }
