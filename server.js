@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const uuid = require("uuid");
+const MongoClient = require('mongodb').MongoClient;
 require("dotenv/config");
 const fs = require('fs');
 
@@ -60,6 +61,31 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
       break;
   }
   response.sendStatus(200);
+});
+
+app.get("/inventory/:name", cors(corsOptions), async (req, res) =>{
+  try{
+    const info = req.params.name
+    const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PW}@cluster0.flka5.mongodb.net/${process.env.MONGODB_DBNAME}?retryWrites=true&w=majority`;
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    client.connect(err => {
+      const col = client.db(process.env.MONGODB_DBNAME).collection("merch-inventory");
+      const queryResult = col.find( { "name": info } ).toArray((err, result) => {
+        if (err) throw err;
+        var inventory = new Object;
+        result.forEach((product) => {
+          inventory[product.size] = product.availability;
+        });
+
+        res.status(200).json(inventory);
+        client.close();
+      });
+    });
+  }
+  catch(err){
+    console.error(err);
+    res.status(err.statusCode).send(err);
+  }
 });
 
 // PORT, Listen
