@@ -38,6 +38,7 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
   let intent = null;
   switch (event['type']) {
     case 'payment_intent.succeeded':
+      // AIRTABLE PART
       intent = event.data.object;
       console.log(intent.charges.data[0])
       console.log(intent.charges.data[0].billing_details.name)
@@ -58,7 +59,26 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
           console.log(record.getId());
         });
       });
+      
       break;
+      case 'checkout.session.completed':
+        // DATABASE CONFIGS
+        const uri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PW}@cluster0.flka5.mongodb.net/${process.env.MONGODB_DBNAME}?retryWrites=true&w=majority`;
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        id = event.data.object.client_reference_id;
+        items = id.split(',');
+        items.forEach((item) => {
+          let product, quantity;
+          [product, quantity] = item.split(':');
+          let name, size;
+          [name, size] = product.split('_');
+          client.connect(err => {
+            const col = client.db(process.env.MONGODB_DBNAME).collection("merch-inventory");
+            const queryResult = col.findOneAndUpdate({ "name": name, "size": size }, { $inc : { "availability": -quantity } })
+            client.close();
+            res.status(200).json(queryResult);
+          });
+        });
   }
   response.sendStatus(200);
 });
