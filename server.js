@@ -11,6 +11,8 @@ const endpointSecret = process.env.ENDPOINT_SECRET_KEY;
 var Airtable = require('airtable');
 var base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base(process.env.AIRTABLE_BASE);
 
+var referralsBase = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base('appsKtmUDGt4KK6Ty');
+
 // App Initialization
 const app = express();
 
@@ -67,6 +69,25 @@ app.post('/webhook', cors(corsOptions), function(request, response) {
         const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         id = event.data.object.client_reference_id;
         items = id.split(',');
+        first = items.shift();
+        if (first != 'n/a') {
+          referralsBase('Purchases').create([
+            {
+              "fields": {
+                "nameCode": first,
+                "nbItems": items.length,
+              }
+            },
+          ], function(err, records) {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            records.forEach(function (record) {
+              console.log(record.getId());
+            });
+          });
+        }
         items.forEach((item) => {
           let product, quantity;
           [product, quantity] = item.split(':');
